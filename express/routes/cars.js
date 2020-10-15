@@ -1,131 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
+const Car = require('../model/car');
 
-let coches = [
-    {
-        id: 0,
-        marca: "Chevrolet",
-        modelo: "Captiva",
-        year: 2010
-    },
+// ------------------------------------------- MÉTODOS GET -----------------------------------------------------
 
-    {
-        id: 1,
-        marca: "Fiat",
-        modelo: "Palio",
-        year: 2007
-    },
+router.get('/', async (req, res) => {
+    const cars = await Car.find();
 
-    {
-        id: 2,
-        marca: "Jeep",
-        modelo: "Grand Cherokee",
-        year: 2020
-    },
-
-    {
-        id: 3,
-        marca: "Ford",
-        modelo: "Focus",
-        year: 2019
-    },
-
-    {
-        id: 4,
-        marca: "Ford",
-        modelo: "Explorer",
-        year: 2019
-    },
-
-    {
-        id: 5,
-        marca: "Jeep",
-        modelo: "Cherokee",
-        year: 2020
-    },
-
-    {
-        id: 6,
-        marca: "Chevrolet",
-        modelo: "Optra",
-        year: 2020
-    }
-];
-
-router.get('/list', (req, res) => {
-    res.send(['Chevrolet Captiva', 'Fiat Palio', 'Chevrolet Aveo', 'Ford Focus', 'Jeep Grand Cherokee', 'Jeep Cherokiee']);
+    !cars ? res.status(404).send('No hay datos de coches para mostrar') : res.status(200).send(cars);
 });
 
-// Si queremos agarrar el id de la URL
+router.get('/:id', async (req, res) => {
+    const id = await req.params.id;
+    const car = await findById(id);
 
-router.get('/id/:id', (req, res) => {
-    res.send(req.params.id);
-});
-
-// Sacando más parámetros de la URL 
-
-router.get('/:company/:model', (req, res) => {
-    res.send(req.params);       // Si no especifico cual parámetro quiero me saca todos en formato json
-});
-
-router.get('/', (req, res) => {
-    res.send(coches);
-});
-
-router.get('/:company', (req, res) => {
-
-    // El método 'find' me arroja solo el primer resultado que coincida con la búsqueda
-
-    const coche = coches.find(coche => coche.marca === req.params.company);
-
-    if (!coche) {
-        res.status(404).send('No existe coche de esa marca');
-    } else {
-        res.status(200).send(coche);
-    }
+    !car ? res.status(404).send('No hay datos para mostrar') : res.status(200).send(car);
 });
 
 // ----------------------------------------------- MÉTODOS POST -------------------------------------------------------
 
-router.post('/', (req, res) => {
-    var carId = coches.length;
-
-    var coche = {
-        id: carId,
-        marca: req.body.marca,
-        modelo: req.body.modelo,
-        year: req.body.year
-    };
-
-    coches.push(coche);
-    res.status(201).send(coche);
-});
-
-router.post('/2', (req, res) => {
-
-    if (!req.body.marca || req.body.marca.length < 3) {
-        res.status(400).send('Por favor ingrese una marca valida')
-        return;
-    };
-
-    let carId = coches.length;
-
-    let coche = {
-        id: carId,
-        marca: req.body.marca,
-        modelo: req.body.modelo,
-        year: req.body.year
-    };
-
-    coches.push(coche);
-    res.status(201).send(coche);
-});
-
-router.post('/3', [
-    body('marca').isLength({ min: 3 }),
-    body('modelo').isLength({ min: 2 })
-], (req, res) => {
+router.post('/', [
+    body('company').isLength({ min: 3 }),
+    body('model').isLength({ min: 3 })
+], async (req, res) => {
 
     const errors = validationResult(req);
 
@@ -133,17 +31,17 @@ router.post('/3', [
         return res.status(422).json({ errors: errors.array() });
     };
 
-    let carId = coches.length;
+    const car = new Car({
+        company: req.body.company,
+        model: req.body.model,
+        sold: req.body.sold,
+        price: req.body.price,
+        year: req.body.year,
+        extras: req.body.extras
+    });
 
-    let coche = {
-        id: carId,
-        marca: req.body.marca,
-        modelo: req.body.modelo,
-        year: req.body.year
-    };
-
-    coches.push(coche);
-    res.status(201).send(coche);
+    const result = await car.save();
+    res.status(201).send(result);
 });
 
 // ------------------------------------------------ MÉTODO PUT --------------------------------------------------------
