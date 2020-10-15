@@ -51,7 +51,11 @@ router.post('/', [
     });
 
     const result = await car.save();
-    res.status(201).send(result);
+    res.status(201).send({
+        status: 'success',
+        message: 'Auto guardado exitosamente',
+        Coche: result
+    });
 });
 
 // ------------------------------------------------ MÉTODO PUT --------------------------------------------------------
