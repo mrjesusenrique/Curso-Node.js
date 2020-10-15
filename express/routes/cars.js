@@ -1,3 +1,5 @@
+'use strict'
+
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
@@ -8,14 +10,22 @@ const Car = require('../model/car');
 router.get('/', async (req, res) => {
     const cars = await Car.find();
 
-    !cars ? res.status(404).send('No hay datos de coches para mostrar') : res.status(200).send(cars);
+    !cars ? res.status(404).send('No hay datos de coches para mostrar') : res.status(200).send({
+        status: "success",
+        message: "Coches encontrados",
+        coches: cars
+    });
 });
 
 router.get('/:id', async (req, res) => {
     const id = await req.params.id;
-    const car = await findById(id);
+    const car = await Car.findById(id);
 
-    !car ? res.status(404).send('No hay datos para mostrar') : res.status(200).send(car);
+    !car ? res.status(404).send('No hay datos para mostrar') : res.status(200).send({
+        status: "success",
+        message: "Coche encontrado",
+        coche: car
+    });
 });
 
 // ----------------------------------------------- MÉTODOS POST -------------------------------------------------------
@@ -47,10 +57,10 @@ router.post('/', [
 // ------------------------------------------------ MÉTODO PUT --------------------------------------------------------
 
 router.put('/:id', [
-    body('marca').isLength({ min: 3 }),
-    body('modelo').isLength({ min: 2 }),
+    body('company').isLength({ min: 3 }),
+    body('model').isLength({ min: 3 }),
     body('year').isInt()
-], (req, res) => {
+], async (req, res) => {
 
     const errors = validationResult(req);
 
@@ -58,32 +68,36 @@ router.put('/:id', [
         return res.status(422).json({ errors: errors.array() });
     };
 
-    const coche = coches.find(coche => coche.id === Number(req.params.id));
+    const id = req.params.id;
+    const car = await Car.findByIdAndUpdate(id, {
+        company: req.body.company,
+        model: req.body.model,
+        sold: req.body.sold,
+        price: req.body.price,
+        year: req.body.year,
+        extras: req.body.extras
+    }, { new: true });
 
-    if (!coche) {
-        return res.status(404).send('El coche con este ID no existe');
+    if (!car) {
+        return res.status(404).send('No se pudo encontrar ningun elemento con este ID');
+    } else {
+        res.status(200).send({
+            status: 'success',
+            message: 'Coche actualizado',
+            coche: car
+        });
     };
-
-    coche.marca = req.body.marca;
-    coche.modelo = req.body.modelo;
-    coche.year = req.body.year;
-
-    res.status(200).send({ message: "El coche se ha actualizado correctamente", coche: coche });
-
 });
 
 // ------------------------------------------- MÉTODO DELETE ----------------------------------------------------------
 
-router.delete('/:id', (req, res) => {
-    const coche = coches.find(coche => coche.id === Number(req.params.id));
+router.delete('/:id', async (req, res) => {
 
-    if (!coche) {
-        return res.status(404).send('El coche con este ID no existe y no se puede borrar');
-    };
+    const id = req.params.id;
+    const car = await Car.findByIdAndDelete(id);
 
-    const index = coches.indexOf(coche);
-    coches.splice(index, 1);
-    res.status(200).send({ message: 'Coche borrado exitosamente', coche: coche });
+    !car ? res.status(404).send('No existe ningun elemento con este ID') :
+        res.status(200).send({ message: 'Coche borrado exitosamente', coche: car });
 });
 
 module.exports = router;
