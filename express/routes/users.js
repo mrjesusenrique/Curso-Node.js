@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-const User = require('../model/user');
+const User = require('../models/user');
 
 // ------------------------------------------- MÉTODOS GET -----------------------------------------------------
 
@@ -31,9 +31,10 @@ router.get('/:id', async (req, res) => {
 // ----------------------------------------------- MÉTODOS POST -------------------------------------------------------
 
 router.post('/', [
-    body('name').isLength({ min: 2 }),
-    body('lastName').isLength({ min: 2 }),
-    body('email').isLength({ min: 5 })
+    body('name').isString().isLength({ min: 2, max: 99 }),
+    body('lastName').isString().isLength({ min: 2, max: 99 }),
+    body('email').isString().isLength({ min: 5, max: 99 }),
+    body('isCustomer').isBoolean()
 ], async (req, res) => {
 
     const errors = validationResult(req);
@@ -51,7 +52,7 @@ router.post('/', [
 
     const result = await user.save();
 
-    res.status(200).send({
+    res.status(201).send({
         status: 'success',
         message: 'Usuario guardado exitosamente',
         Usuario: result
@@ -61,9 +62,10 @@ router.post('/', [
 // ------------------------------------------------ MÉTODO PUT --------------------------------------------------------
 
 router.put('/:id', [
-    body('name').isLength({ min: 2 }),
-    body('lastName').isLength({ min: 2 }),
-    body('email').isLength({ min: 5 })
+    body('name').isString().isLength({ min: 2, max: 99 }),
+    body('lastName').isString().isLength({ min: 2, max: 99 }),
+    body('email').isString().isLength({ min: 5, max: 99 }),
+    body('isCustomer').isBoolean()
 ], async (req, res) => {
 
     const errors = validationResult(req);

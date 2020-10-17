@@ -3,7 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-const Car = require('../model/car');
+const Car = require('../models/car');
+const Company = require('../models/company');
 
 // ------------------------------------------- MÉTODOS GET -----------------------------------------------------
 
@@ -13,7 +14,7 @@ router.get('/', async (req, res) => {
     !cars ? res.status(404).send('No hay datos de coches para mostrar') : res.status(200).send({
         status: "success",
         message: "Coches encontrados",
-        coches: cars
+        Coches: cars
     });
 });
 
@@ -24,15 +25,18 @@ router.get('/:id', async (req, res) => {
     !car ? res.status(404).send('No hay datos para mostrar') : res.status(200).send({
         status: "success",
         message: "Coche encontrado",
-        coche: car
+        Coche: car
     });
 });
 
 // ----------------------------------------------- MÉTODOS POST -------------------------------------------------------
 
 router.post('/', [
-    body('company').isLength({ min: 3 }),
-    body('model').isLength({ min: 3 })
+    body('company').isString().isLength({ min: 3, max: 99 }).isUppercase(),
+    body('model').isString().isLength({ min: 3, max: 99 }),
+    body('sold').isBoolean(),
+    body('price').isNumeric(),
+    body('year').isInt().isLength({ min: 4, max: 4 })
 ], async (req, res) => {
 
     const errors = validationResult(req);
@@ -61,9 +65,11 @@ router.post('/', [
 // ------------------------------------------------ MÉTODO PUT --------------------------------------------------------
 
 router.put('/:id', [
-    body('company').isLength({ min: 3 }),
-    body('model').isLength({ min: 3 }),
-    body('year').isInt()
+    body('company').isString().isLength({ min: 3, max: 99 }).isUppercase(),
+    body('model').isString().isLength({ min: 3, max: 99 }),
+    body('sold').isBoolean(),
+    body('price').isNumeric(),
+    body('year').isInt().isLength({ min: 4, max: 4 })
 ], async (req, res) => {
 
     const errors = validationResult(req);
@@ -88,7 +94,7 @@ router.put('/:id', [
         res.status(200).send({
             status: 'success',
             message: 'Coche actualizado',
-            coche: car
+            Coche: car
         });
     };
 });
@@ -101,7 +107,7 @@ router.delete('/:id', async (req, res) => {
     const car = await Car.findByIdAndDelete(id);
 
     !car ? res.status(404).send('No existe ningun elemento con este ID') :
-        res.status(200).send({ message: 'Coche borrado exitosamente', coche: car });
+        res.status(200).send({ status: 'success', message: 'Coche borrado exitosamente', coche: car });
 });
 
 module.exports = router;
