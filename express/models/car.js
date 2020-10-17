@@ -5,13 +5,8 @@ const mongoose = require('mongoose');
 const carSchema = new mongoose.Schema({
 
     company: {
-        type: String,
-        required: true,
-        uppercase: true,
-        trim: true,
-        minlength: 2,
-        maxlength: 99,
-        enum: ['BMW', 'AUDI', 'FORD', 'FIAT', 'CHEVROLET']
+       type: mongoose.Schema.Types.ObjectId,
+       ref: 'company'
     },
 
     model: {

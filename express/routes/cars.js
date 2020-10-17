@@ -32,7 +32,6 @@ router.get('/:id', async (req, res) => {
 // ----------------------------------------------- MÉTODOS POST -------------------------------------------------------
 
 router.post('/', [
-    body('company').isString().isLength({ min: 3, max: 99 }).isUppercase(),
     body('model').isString().isLength({ min: 3, max: 99 }),
     body('sold').isBoolean(),
     body('price').isNumeric(),
@@ -65,7 +64,6 @@ router.post('/', [
 // ------------------------------------------------ MÉTODO PUT --------------------------------------------------------
 
 router.put('/:id', [
-    body('company').isString().isLength({ min: 3, max: 99 }).isUppercase(),
     body('model').isString().isLength({ min: 3, max: 99 }),
     body('sold').isBoolean(),
     body('price').isNumeric(),
