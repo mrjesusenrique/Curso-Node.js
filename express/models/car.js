@@ -1,12 +1,13 @@
 'use strict'
 
 const mongoose = require('mongoose');
+const { companySchema } = require('./company');
 
 const carSchema = new mongoose.Schema({
 
     company: {
-       type: mongoose.Schema.Types.ObjectId,
-       ref: 'company'
+        type: companySchema,
+        required: true
     },
 
     model: {
@@ -46,6 +47,7 @@ const carSchema = new mongoose.Schema({
     }
 });
 
-const Car = mongoose.model('carsCollection', carSchema);
+const Car = mongoose.model('car', carSchema);
+
 module.exports = Car;
 

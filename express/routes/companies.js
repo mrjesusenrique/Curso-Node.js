@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-const Company = require('../models/company');
+const { Company } = require('../models/company');
 
 // ------------------------------------------- MÉTODOS GET -----------------------------------------------------
 

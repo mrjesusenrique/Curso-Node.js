@@ -4,12 +4,13 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const Car = require('../models/car');
-const Company = require('../models/company');
+const { Company } = require('../models/company');
 
 // ------------------------------------------- MÉTODOS GET -----------------------------------------------------
 
 router.get('/', async (req, res) => {
-    const cars = await Car.find();
+    const cars = await Car
+        .find();
 
     !cars ? res.status(404).send('No hay datos de coches para mostrar') : res.status(200).send({
         status: "success",
@@ -43,9 +44,15 @@ router.post('/', [
     if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() });
     };
+    
+    const company = await Company.findById(req.body.companyId);
+
+    if (!company) {
+        return res.status(404).send('No existe este fabricante');
+    };
 
     const car = new Car({
-        company: req.body.company,
+        company: company,
         model: req.body.model,
         sold: req.body.sold,
         price: req.body.price,
