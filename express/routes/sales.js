@@ -6,8 +6,10 @@ const router = express.Router();
 const Sale = require('../models/sale');
 const Car = require('../models/car');
 const User = require('../models/user');
+const Authorization = require('../middleware/auth');
+const Administrator = require('../middleware/admin');
 
-router.get('/', async (req, res) => {
+router.get('/', [Authorization, Administrator], async (req, res) => {
     const sales = await Sale.find();
 
     !sales ? res.status(404).send('No hay ventas para mostrar') :
@@ -18,7 +20,7 @@ router.get('/', async (req, res) => {
         });
 });
 
-router.post('/', async (req, res) => {
+router.post('/', Authorization, async (req, res) => {
 
     const user = await User.findById(req.body.userId);
     !user && res.status(400).send('El ususario no existe');

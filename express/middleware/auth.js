@@ -3,7 +3,10 @@ const jwt = require('jsonwebtoken');
 function auth(req, res, next) {
     const token = req.header('Authorization');
 
-    !token && res.status(401).send('Acceso Denegado, Token inexistente');
+    !token && res.status(401).send({
+        status: 'failed',
+        message: 'Acceso Denegado, Token inexistente'
+    });
 
     try {
         const payload = jwt.verify(token, process.env.SECRET_KEY_APP_API);
@@ -11,7 +14,10 @@ function auth(req, res, next) {
         next();
 
     } catch (error) {
-        return res.status(401).send('Acceso Denegado. Token Inválido');
+        return res.status(401).send({
+            status: 'failed',
+            message: 'Acceso Denegado. Token Inválido'
+        });
     };
 };
 

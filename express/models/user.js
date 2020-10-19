@@ -41,6 +41,10 @@ const userSchema = new mongoose.Schema({
         minlength: 3
     },
 
+    isAdmin: {
+        type: Boolean
+    },
+
     date: {
         type: Date,
         default: Date.now
@@ -48,7 +52,12 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.generateJWT = function () {
-    return jwt.sign({ _id: this._id, name: this.name, lastName: this.lastName }, process.env.SECRET_KEY_APP_API);
+    return jwt.sign({
+        _id: this._id,
+        name: this.name,
+        lastName: this.lastName,
+        isAdmin: this.isAdmin
+    }, process.env.SECRET_KEY_APP_API);
 };
 
 const User = mongoose.model('user', userSchema);
