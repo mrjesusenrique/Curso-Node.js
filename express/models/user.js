@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.generateJWT = function () {
-    return jwt.sign({ _id: this._id, name: this.name, lastName: this.lastName }, 'tokenpassword');
+    return jwt.sign({ _id: this._id, name: this.name, lastName: this.lastName }, process.env.SECRET_KEY_APP_API);
 };
 
 const User = mongoose.model('user', userSchema);
