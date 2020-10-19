@@ -24,9 +24,11 @@ router.post('/', [
     const validPassword = await bcrypt.compare(inputPassword, user.password);
     !validPassword && res.status(400).send('El usuario o contraseña es incorrecto');
 
-    res.status(200).send({
+    const token = user.generateJWT();
+
+    res.status(200).header('Authorization', token).send({
         status: 'success',
-        message: 'Usuario y contraseña correctos'
+        message: 'Login correcto ',
     });
 });
 

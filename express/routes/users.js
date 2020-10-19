@@ -66,9 +66,11 @@ router.post('/', [
             password: hashPassword
         });
 
-        const result = await user.save();
+        await user.save();
 
-        res.status(201).send({
+        const token = user.generateJWT();
+
+        res.status(201).header('Authorization', token).send({
             status: 'success',
             message: 'Usuario guardado exitosamente',
             Usuario: {

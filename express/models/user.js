@@ -1,6 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
 
@@ -45,6 +46,10 @@ const userSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+userSchema.methods.generateJWT = function () {
+    return jwt.sign({ _id: this._id, name: this.name, lastName: this.lastName }, 'tokenpassword');
+};
 
 const User = mongoose.model('user', userSchema);
 
