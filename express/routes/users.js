@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const User = require('../models/user');
+const bcrypt = require('bcrypt');
 
 // ------------------------------------------- MÉTODOS GET -----------------------------------------------------
 
@@ -34,7 +35,8 @@ router.post('/', [
     body('name').isString().isLength({ min: 2, max: 99 }),
     body('lastName').isString().isLength({ min: 2, max: 99 }),
     body('email').isString().isLength({ min: 5, max: 99 }),
-    body('isCustomer').isBoolean()
+    body('isCustomer').isBoolean(),
+    body('password').isLength({ min: 3, max: 99 }).isString()
 ], async (req, res) => {
 
     const errors = validationResult(req);
@@ -43,20 +45,39 @@ router.post('/', [
         return res.status(422).json({ errors: errors.array() });
     };
 
-    const user = new User({
-        name: req.body.name,
-        lastName: req.body.lastName,
-        isCustomer: req.body.isCustomer,
-        email: req.body.email
-    });
+    let user = await User.findOne({ email: req.body.email });
 
-    const result = await user.save();
+    if (user) {
+        return res.status(400).send('El email ya se encuentra registrado en la Base de Datos');
+    } else {
 
-    res.status(201).send({
-        status: 'success',
-        message: 'Usuario guardado exitosamente',
-        Usuario: result
-    });
+        let plainTextPassword = req.body.password;
+
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(plainTextPassword, salt);
+
+        const user = new User({
+            name: req.body.name,
+            lastName: req.body.lastName,
+            isCustomer: req.body.isCustomer,
+            email: req.body.email,
+            password: hashPassword
+        });
+
+        const result = await user.save();
+
+        res.status(201).send({
+            status: 'success',
+            message: 'Usuario guardado exitosamente',
+            Usuario: {
+                _id: user._id,
+                name: user.name,
+                lastName: user.lastName,
+                isCustomer: user.isCustomer,
+                email: user.email
+            }
+        });
+    };
 });
 
 // ------------------------------------------------ MÉTODO PUT --------------------------------------------------------

@@ -19,6 +19,6 @@ app.use('/api/sales/', sales);
 app.listen(port, () => console.log(`Escuchando en el puerto ${port}`));
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/API_REST_CARSCOMPANIES', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
+mongoose.connect('mongodb://localhost/API_REST_CARSCOMPANIES', { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
     .then(() => console.log('La conexión a la Base de Datos se ha realizado con éxito!!'))
     .catch((error) => console.log(`Ha ocurrido un error al intentar conectar con la Base de Datos ${error}`));
