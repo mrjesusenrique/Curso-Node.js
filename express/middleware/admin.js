@@ -1,6 +1,5 @@
-const jwt = require('jsonwebtoken');
-
 function admin(req, res, next) {
+
     let isAdmin = req.user.isAdmin;
 
     !isAdmin && res.status(403).send({
