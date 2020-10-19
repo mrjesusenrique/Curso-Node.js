@@ -45,7 +45,9 @@ router.post('/', [
         return res.status(422).json({ errors: errors.array() });
     };
 
-    let user = await User.findOne({ email: req.body.email });
+    let newEmail = req.body.email;
+
+    let user = await User.findOne({ email: newEmail });
 
     if (user) {
         return res.status(400).send('El email ya se encuentra registrado en la Base de Datos');

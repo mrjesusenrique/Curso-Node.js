@@ -8,6 +8,7 @@ const cars = require('./routes/cars');
 const users = require('./routes/users');
 const companies = require('./routes/companies');
 const sales = require('./routes/sales');
+const auth = require('./routes/auth');
 
 app.use(express.json());        // Esto sirve para enviar datos por POST en formato JSON 
 
@@ -15,6 +16,7 @@ app.use('/api/cars/', cars);
 app.use('/api/users/', users);
 app.use('/api/companies', companies);
 app.use('/api/sales/', sales);
+app.use('/api/auth/', auth);
 
 app.listen(port, () => console.log(`Escuchando en el puerto ${port}`));
 
