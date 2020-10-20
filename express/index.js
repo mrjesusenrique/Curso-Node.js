@@ -18,6 +18,8 @@ app.use('/api/companies', companies);
 app.use('/api/sales/', sales);
 app.use('/api/auth/', auth);
 
+console.log(process.env.SECRET_KEY_APP_API);
+
 app.listen(port, () => console.log(`Escuchando en el puerto ${port}`));
 
 mongoose.Promise = global.Promise;

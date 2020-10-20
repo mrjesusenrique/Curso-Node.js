@@ -45,6 +45,12 @@ const userSchema = new mongoose.Schema({
         type: Boolean
     },
 
+    role: {
+        type: String,
+        required: true,
+        trim: true
+    },
+
     date: {
         type: Date,
         default: Date.now
@@ -56,7 +62,8 @@ userSchema.methods.generateJWT = function () {
         _id: this._id,
         name: this.name,
         lastName: this.lastName,
-        isAdmin: this.isAdmin
+        isAdmin: this.isAdmin,
+        role: this.role
     }, process.env.SECRET_KEY_APP_API);
 };
 

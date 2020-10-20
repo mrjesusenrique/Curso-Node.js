@@ -6,7 +6,6 @@ function admin(req, res, next) {
         status: 'failed',
         message: 'ACCESO DENEGADO: No tienes autorización para realizar esta acción'
     });
-
     next();
 };
 

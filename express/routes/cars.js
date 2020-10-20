@@ -5,10 +5,14 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const Car = require('../models/car');
 const { Company } = require('../models/company');
+const Authorization = require('../middleware/auth');
+const Administrator = require('../middleware/admin');
+const Authorize = require('../middleware/role');
+const Role = require('../helpers/roles');
 
 // ------------------------------------------- MÉTODOS GET -----------------------------------------------------
 
-router.get('/', async (req, res) => {
+router.get('/', [Authorization, Administrator, Authorize([Role.Admin, Role.User])], async (req, res) => {
     const cars = await Car
         .find();
 
@@ -19,7 +23,7 @@ router.get('/', async (req, res) => {
     });
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', [Authorization, Administrator, Authorize([Role.Admin])], async (req, res) => {
     const id = await req.params.id;
     const car = await Car.findById(id);
 
@@ -44,7 +48,7 @@ router.post('/', [
     if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() });
     };
-    
+
     const company = await Company.findById(req.body.companyId);
 
     if (!company) {
