@@ -4,10 +4,14 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const { Company } = require('../models/company');
+const Authorization = require('../middleware/auth');
+const Administrator = require('../middleware/admin');
+const Authorize = require('../middleware/role');
+const Role = require('../helpers/roles');
 
 // ------------------------------------------- MÉTODOS GET -----------------------------------------------------
 
-router.get('/', async (req, res) => {
+router.get('/', [Authorization, Administrator, Authorize([Role.Admin, Role.User])], async (req, res) => {
     const companies = await Company.find();
 
     !companies ? res.status(404).send('No hay datos de compañias para mostrar') :
@@ -18,7 +22,7 @@ router.get('/', async (req, res) => {
         });
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', [Authorization, Administrator, Authorize([Role.Admin])], async (req, res) => {
     const id = req.params.id;
     const company = await Company.findById(id);
 
@@ -32,7 +36,7 @@ router.get('/:id', async (req, res) => {
 
 // ----------------------------------------------- MÉTODOS POST -------------------------------------------------------
 
-router.post('/', [
+router.post('/', [Authorization, Administrator, Authorize([Role.Admin])], [
     body('name').isString().isLength({ min: 3, max: 99 }).isUppercase(),
     body('country').isString().isLength({ min: 3, max: 99 }),
     body('yearFoundation').isInt().isLength({ min: 4, max: 4 })
@@ -61,7 +65,7 @@ router.post('/', [
 
 // ------------------------------------------------ MÉTODO PUT --------------------------------------------------------
 
-router.put('/:id', [
+router.put('/:id', [Authorization, Administrator, Authorize([Role.Editor])], [
     body('name').isString().isLength({ min: 3, max: 99 }).isUppercase(),
     body('country').isString().isLength({ min: 3, max: 99 }),
     body('yearFoundation').isInt().isLength({ min: 4, max: 4 })
@@ -93,7 +97,7 @@ router.put('/:id', [
 
 // ------------------------------------------- MÉTODO DELETE ----------------------------------------------------------
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [Authorization, Administrator, Authorize([Role.Editor])], async (req, res) => {
 
     const id = req.params.id;
     const company = await Company.findByIdAndDelete(id);

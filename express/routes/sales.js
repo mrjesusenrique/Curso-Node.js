@@ -8,8 +8,10 @@ const Car = require('../models/car');
 const User = require('../models/user');
 const Authorization = require('../middleware/auth');
 const Administrator = require('../middleware/admin');
+const Authorize = require('../middleware/role');
+const Role = require('../helpers/roles');
 
-router.get('/', [Authorization, Administrator], async (req, res) => {
+router.get('/', [Authorization, Administrator, Authorize([Role.Admin])], async (req, res) => {
     const sales = await Sale.find();
 
     !sales ? res.status(404).send('No hay ventas para mostrar') :
@@ -20,7 +22,18 @@ router.get('/', [Authorization, Administrator], async (req, res) => {
         });
 });
 
-router.post('/', Authorization, async (req, res) => {
+router.get('/:id', [Authorization, Administrator, Authorize([Role.Admin])], async (req, res) => {
+    const id = req.params.id;
+    const sale = await Sale.findById(id);
+
+    !sale ? res.status(404).send('No hay datos para mostrar') : res.status(200).send({
+        status: 'success',
+        message: 'Venta encontrada',
+        Venta: sale
+    });
+});
+
+router.post('/', [Authorization, Administrator, Authorize([Role.Admin])], async (req, res) => {
 
     const user = await User.findById(req.body.userId);
     !user && res.status(400).send('El ususario no existe');

@@ -5,10 +5,15 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const Authorization = require('../middleware/auth');
+const Administrator = require('../middleware/admin');
+const Authorize = require('../middleware/role');
+const Role = require('../helpers/roles');
+
 
 // ------------------------------------------- MÉTODOS GET -----------------------------------------------------
 
-router.get('/', async (req, res) => {
+router.get('/', [Authorization, Administrator, Authorize([Role.Admin, Role.User])], async (req, res) => {
     const user = await User.find();
 
     !user ? res.status(404).send('No hay datos de usuarios para mostrar') : res.status(200).send({
@@ -18,7 +23,7 @@ router.get('/', async (req, res) => {
     });
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', [Authorization, Administrator, Authorize([Role.Admin])], async (req, res) => {
     const id = req.params.id;
     const user = await User.findById(id);
 
@@ -31,12 +36,13 @@ router.get('/:id', async (req, res) => {
 
 // ----------------------------------------------- MÉTODOS POST -------------------------------------------------------
 
-router.post('/', [
+router.post('/', [Authorization, Administrator, Authorize([Role.Admin])], [
     body('name').isString().isLength({ min: 2, max: 99 }),
     body('lastName').isString().isLength({ min: 2, max: 99 }),
     body('email').isString().isLength({ min: 5, max: 99 }),
     body('isCustomer').isBoolean(),
-    body('password').isLength({ min: 3, max: 99 }).isString()
+    body('password').isLength({ min: 3, max: 99 }).isString(),
+    body('role').isString().isLength({ min: 3, max: 7 })
 ], async (req, res) => {
 
     const errors = validationResult(req);
@@ -63,7 +69,8 @@ router.post('/', [
             lastName: req.body.lastName,
             isCustomer: req.body.isCustomer,
             email: req.body.email,
-            password: hashPassword
+            password: hashPassword,
+            role: req.body.role
         });
 
         await user.save();
@@ -78,7 +85,8 @@ router.post('/', [
                 name: user.name,
                 lastName: user.lastName,
                 isCustomer: user.isCustomer,
-                email: user.email
+                email: user.email,
+                role: user.role
             }
         });
     };
@@ -86,7 +94,7 @@ router.post('/', [
 
 // ------------------------------------------------ MÉTODO PUT --------------------------------------------------------
 
-router.put('/:id', [
+router.put('/:id', [Authorization, Administrator, Authorize([Role.Editor])], [
     body('name').isString().isLength({ min: 2, max: 99 }),
     body('lastName').isString().isLength({ min: 2, max: 99 }),
     body('email').isString().isLength({ min: 5, max: 99 }),
@@ -120,7 +128,7 @@ router.put('/:id', [
 
 // ------------------------------------------- MÉTODO DELETE ----------------------------------------------------------
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [Authorization, Administrator, Authorize([Role.Editor])], async (req, res) => {
     const id = req.params.id;
     const user = await User.findByIdAndDelete(id);
 

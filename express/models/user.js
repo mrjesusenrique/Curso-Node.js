@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const secretKey = require('dotenv').config({ path: 'variables.env' });
 
 const userSchema = new mongoose.Schema({
 
@@ -64,7 +65,7 @@ userSchema.methods.generateJWT = function () {
         lastName: this.lastName,
         isAdmin: this.isAdmin,
         role: this.role
-    }, process.env.SECRET_KEY_APP_API);
+    }, process.env.SECRET_KEY_APP);
 };
 
 const User = mongoose.model('user', userSchema);

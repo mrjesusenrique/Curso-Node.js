@@ -36,7 +36,7 @@ router.get('/:id', [Authorization, Administrator, Authorize([Role.Admin])], asyn
 
 // ----------------------------------------------- MÉTODOS POST -------------------------------------------------------
 
-router.post('/', [
+router.post('/', [Authorization, Administrator, Authorize([Role.Admin])], [
     body('model').isString().isLength({ min: 3, max: 99 }),
     body('sold').isBoolean(),
     body('price').isNumeric(),
@@ -74,7 +74,7 @@ router.post('/', [
 
 // ------------------------------------------------ MÉTODO PUT --------------------------------------------------------
 
-router.put('/:id', [
+router.put('/:id', [Authorization, Administrator, Authorize([Role.Editor])], [
     body('model').isString().isLength({ min: 3, max: 99 }),
     body('sold').isBoolean(),
     body('price').isNumeric(),
@@ -89,7 +89,6 @@ router.put('/:id', [
 
     const id = req.params.id;
     const car = await Car.findByIdAndUpdate(id, {
-        company: req.body.company,
         model: req.body.model,
         sold: req.body.sold,
         price: req.body.price,
@@ -110,7 +109,7 @@ router.put('/:id', [
 
 // ------------------------------------------- MÉTODO DELETE ----------------------------------------------------------
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [Authorization, Administrator, Authorize([Role.Editor])], async (req, res) => {
 
     const id = req.params.id;
     const car = await Car.findByIdAndDelete(id);
